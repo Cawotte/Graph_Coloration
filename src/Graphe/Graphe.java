@@ -3,6 +3,7 @@ package Graphe;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -54,6 +55,13 @@ public class Graphe
 
         System.out.println("-------------------------------------------");
         System.out.println();
+    }
+
+    public void sort() {
+
+        for ( ArrayList<Integer> listeAdj : listeAdjacence.values() ) {
+            Collections.sort(listeAdj);
+        }
     }
 
 
