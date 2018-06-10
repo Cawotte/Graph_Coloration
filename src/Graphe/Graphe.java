@@ -87,7 +87,7 @@ public class Graphe
         //Première ligne, le nom.
         line = sc.nextLine();
         nom = line.substring(5); //On coupe les premiers caractères "Nom: ";
-        System.out.println("\'" + nom + "\'");
+        System.out.print("\'" + nom + "\', ");
 
         //Seconde ligne, orienté Oui/non. On ignore car pas pris en charge
         //System.out.println(sc.nextLine());
@@ -97,7 +97,7 @@ public class Graphe
         while (!sc.hasNextInt())
             sc.next();
         nbSommets = sc.nextInt();
-        System.out.println("nbSommets = " + nbSommets);
+        System.out.print("nbSommets = " + nbSommets + ", ");
         sc.nextLine();
 
         //Quatrième ligne, nbValSommets, pas pris en charge, on skip
@@ -149,7 +149,7 @@ public class Graphe
             (listeAdjacence.get(som)).add(voisin);
         }
 
-        System.out.println("---- Fichier lu ! ----\n");
+        //System.out.println("---- Fichier lu ! ----\n");
 
 
         return true;
@@ -185,13 +185,18 @@ public class Graphe
         Continuer jusqu'à avoir coloré tous les sommets.
                 */
 
-        boolean croissant = true;
         boolean aleatoire = false;
 
         if ( mode.equals("aleatoire") )
             aleatoire = true;
-        else if ( mode.equals("decroissant") )
-            croissant = false;
+
+        //On calcule la durée d'execution
+        long startTime = 0;
+        if ( avecTempsExecution && !aleatoire) {
+            //On commence à chronométrer la durée de la méthode :
+            startTime = System.nanoTime();
+        }
+
 
         ArrayList<Integer> sommets = trierSommetsParDegres(mode);
 
@@ -236,8 +241,17 @@ public class Graphe
         }
 
         //Affichage d'informations
-        if ( !aleatoire )
-            System.out.println("Coloration minimale du graphe " + "\'" + nom + "\'" + " par coloration WeshPowell d'ordre " + mode + " : " + couleur + " couleur.");
+        if ( !aleatoire ) {
+            System.out.println("WeshPowell " + mode + " : " + couleur + " couleurs.");
+            //System.out.println("Coloration minimale du graphe " + "\'" + nom + "\'" + " par coloration WeshPowell d'ordre " + mode + " : " + couleur + " couleur.");
+        }
+
+        //Affichage temps d'exécution
+        if ( avecTempsExecution && !aleatoire ) {
+            long endTime = System.nanoTime();
+            float executionTime = (float)(endTime - startTime)/1000000;
+            System.out.println("Temps d'execution : " + Math.round(executionTime * 100.0) / 100.0 + "ms\n" );
+        }
 
         return couleur;
     }
@@ -253,8 +267,19 @@ public class Graphe
         int min_NbCoul = 0;
         int nbCouleur;
 
+        //On calcule la durée d'execution moyenne
+        long[] startTime = new long[nbEchantillon];
+        long[] endTime = new long[nbEchantillon];
+        long moyenneExecutionTime = 0;
+
         for ( int i = 0; i < nbEchantillon; i++) {
+
+            startTime[i] = System.nanoTime();
             nbCouleur = colorationWelshPowell("aleatoire");
+            endTime[i] = System.nanoTime();
+            moyenneExecutionTime += (endTime[i] - startTime[i])/ 1000000;
+
+            //On garde en mémoire le nombre de couleurs min et max atteints.
             if ( min_NbCoul == 0) {
                 min_NbCoul = nbCouleur;
                 max_NbCoul = nbCouleur;
@@ -269,11 +294,13 @@ public class Graphe
         }
 
         moyenne_NbCoul = moyenne_NbCoul / (float)nbEchantillon;
-        System.out.println("Algorithme de Welsh Powell Aleatoire : ");
-        System.out.println("\tTaille échantillon : " + nbEchantillon);
-        System.out.println("\tNombre de couleurs moyenne = " + moyenne_NbCoul);
-        System.out.println("\tNombre de couleurs minimal atteint = " + min_NbCoul);
-        System.out.println("\tNombre de couleurs maximal atteint = " + max_NbCoul);
+        System.out.println("Welsh Powell Aleatoire : ");
+        System.out.print("\tEchantillon = " + nbEchantillon + ", ");
+        System.out.println("Nombre couleurs : moyenne = " + moyenne_NbCoul + ", min = " + min_NbCoul + ", max = " + max_NbCoul);
+
+        if ( avecTempsExecution ) {
+            System.out.println("\tTemps d'execution moyen : " + ((float)moyenneExecutionTime / (float)nbEchantillon) + "ms");
+        }
     }
 
     /**
@@ -293,6 +320,13 @@ public class Graphe
             aleatoire = true;
         else if ( mode.equals("decroissant") )
             croissant = false;
+
+        //On calcule la durée d'execution
+        long startTime = 0;
+        if ( avecTempsExecution && !aleatoire) {
+            //On commence à chronométrer la durée de la méthode :
+            startTime = System.nanoTime();
+        }
 
         int couleurMax = -1;
 
@@ -316,12 +350,18 @@ public class Graphe
             }
         }
 
-    //Affichage d'informations
-        if ( !aleatoire ) {
+        //Affichage d'informations
+        if ( !aleatoire )
+            System.out.println("Greedy " + mode + " : " + couleurMax + " couleurs.");
+            //System.out.println("Coloration minimale du graphe " + "\'" + nom + "\'" + " par coloration Greedy d'ordre " + mode + " : " + couleurMax + " couleur.");
 
-            System.out.println("Coloration minimale du graphe " + "\'" + nom + "\'" + " par coloration Greedy d'ordre " + mode + " : " + couleurMax + " couleur.");
-
+        //Affichage temps d'exécution
+        if ( avecTempsExecution && !aleatoire ) {
+            long endTime = System.nanoTime();
+            float executionTime = (float)(endTime - startTime)/1000000;
+            System.out.println("Temps d'execution : " + Math.round(executionTime * 100.0) / 100.0 + "ms\n" );
         }
+
         return couleurMax;
 
     }
@@ -333,8 +373,17 @@ public class Graphe
         int min_NbCoul = 0;
         int nbCouleur;
 
+        //On calcule la durée d'execution moyenne
+        long[] startTime = new long[nbEchantillon];
+        long[] endTime = new long[nbEchantillon];
+        long moyenneExecutionTime = 0;
+
         for ( int i = 0; i < nbEchantillon; i++) {
+
+            startTime[i] = System.nanoTime();
             nbCouleur = colorationGreedy("aleatoire");
+            endTime[i] = System.nanoTime();
+            moyenneExecutionTime += (endTime[i] - startTime[i])/ 1000000;
             if ( min_NbCoul == 0) {
                 min_NbCoul = nbCouleur;
                 max_NbCoul = nbCouleur;
@@ -349,11 +398,13 @@ public class Graphe
         }
 
         moyenne_NbCoul = moyenne_NbCoul / (float)nbEchantillon;
-        System.out.println("Algorithme Greedy Aleatoire : ");
-        System.out.println("\tTaille échantillon : " + nbEchantillon);
-        System.out.println("\tNombre de couleurs moyenne = " + moyenne_NbCoul);
-        System.out.println("\tNombre de couleurs minimal atteint = " + min_NbCoul);
-        System.out.println("\tNombre de couleurs maximal atteint = " + max_NbCoul);
+        System.out.println("Greedy Aleatoire : ");
+        System.out.print("\tEchantillon = " + nbEchantillon + ", ");
+        System.out.println("Nombre couleurs : moyenne = " + moyenne_NbCoul + ", min = " + min_NbCoul + ", max = " + max_NbCoul);
+
+        if ( avecTempsExecution ) {
+            System.out.println("\tTemps d'execution moyen : " + ((float)moyenneExecutionTime / (float)nbEchantillon) + "ms");
+        }
     }
 
     /**
@@ -375,6 +426,14 @@ public class Graphe
         int sommetDsatMax;
         int couleurMin;
         int couleurMax = 1;
+
+
+        //On calcule la durée d'execution
+        long startTime = 0;
+        if ( avecTempsExecution ) {
+            //On commence à chronométrer la durée de la méthode :
+            startTime = System.nanoTime();
+        }
 
         ArrayList<Integer> sommetsMemeDsatMax = new ArrayList<>();
 
@@ -449,7 +508,16 @@ public class Graphe
         }
 
         //Affichage
-        System.out.println("Coloration minimale du graphe " + "\'" + nom + "\'" + " par coloration DSAT : " + couleurMax + " couleur.");
+
+        System.out.println("Coloration DSAT : " + couleurMax + " couleurs.");
+        //System.out.println("Coloration minimale du graphe " + "\'" + nom + "\'" + " par coloration DSAT : " + couleurMax + " couleur.");
+
+        //Affichage temps d'exécution
+        if ( avecTempsExecution ) {
+            long endTime = System.nanoTime();
+            float executionTime = (float)(endTime - startTime)/1000000;
+            System.out.println("Temps d'execution : " + Math.round(executionTime * 100.0) / 100.0 + "ms\n" );
+        }
 
         return couleurMax;
     }
@@ -489,6 +557,7 @@ public class Graphe
                         j++;
                 }
             }
+            //Si on est arrivé au bout on ajoute à la fin
             if ( j == sommets.size()-1 )
                 sommets.add(i);
             else
