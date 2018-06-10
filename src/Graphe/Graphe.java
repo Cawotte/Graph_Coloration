@@ -13,6 +13,9 @@ public class Graphe
     private int nbSommets;
     private int nbArcs;
 
+    private boolean affichageDebug = false;
+    private boolean avecTempsExecution = true;
+
     private HashMap< Integer, ArrayList<Integer> > listeAdjacence;
 
     /*
@@ -164,13 +167,11 @@ public class Graphe
     //Coloration de Graphe
 
     /**
-     * Renvoie le nombre de couleur d'une coloration du graph par WelshPowell, décroissant ou croissant ou aléatoire en
-     * fonction des booléens données en argument.
-     * @param croissant
-     * @param aleatoire
+     * Renvoie le nombre de couleur d'une coloration du graph par WelshPowell, avec un tri de sommet selon le mode donnée :
+     * "croissant", "decroissant", "aleatoire"
      * @return
      */
-    public int colorationWelshPowell(boolean croissant, boolean aleatoire) {
+    public int colorationWelshPowell(String mode) {
 
         /*
         Repérer le degré de chaque sommet.
@@ -184,10 +185,17 @@ public class Graphe
         Continuer jusqu'à avoir coloré tous les sommets.
                 */
 
+        boolean croissant = true;
+        boolean aleatoire = false;
 
-        ArrayList<Integer> sommets = trierSommetsParDegres(croissant, aleatoire, !aleatoire);
+        if ( mode.equals("aleatoire") )
+            aleatoire = true;
+        else if ( mode.equals("decroissant") )
+            croissant = false;
 
-        int couleur = 1;
+        ArrayList<Integer> sommets = trierSommetsParDegres(mode);
+
+        int couleur = 0;
 
         int[] couleurs = new int[nbSommets];
             //Utile seulement si on veut connaitre la coloration exacte de chaque sommet.
@@ -200,6 +208,8 @@ public class Graphe
 
         //Tant que la liste de sommets n'est pas vide
         while ( !sommets.isEmpty() ) {
+
+            couleur++;
 
             sommetActuel = sommets.get(0); //On récupère le 1er sommet
             couleurs[sommetActuel] = couleur; //On lui donne la couleur actuelle
@@ -223,44 +233,15 @@ public class Graphe
             //On retire les sommets coloriés de la liste.
             sommets.removeAll(aRetirer);
 
-            couleur++;
         }
-
-        //region affichage
-        /*
-        System.out.print("sommets : ");
-        for ( int i = 0; i < nbSommets; i++)
-            System.out.print(i + " | ");
-        System.out.println();
-        System.out.print("degres  : ");
-        for ( int i = 0; i < nbSommets; i++)
-            System.out.print(degres[i] + " | ");
-        System.out.println();
-        System.out.print("couleur : ");
-        for ( int i = 0; i < nbSommets; i++)
-            System.out.print(couleurs[i] + " | ");
-        System.out.println(); */
-        //endregion
 
         //Affichage d'informations
-        if ( !aleatoire ) {
+        if ( !aleatoire )
+            System.out.println("Coloration minimale du graphe " + "\'" + nom + "\'" + " par coloration WeshPowell d'ordre " + mode + " : " + couleur + " couleur.");
 
-            String ordre;
-            if ( croissant )
-                ordre = "croissant";
-            else
-                ordre = "decroissant";
-
-            System.out.println("Coloration minimale du graphe " + "\'" + nom + "\'" + " par coloration WeshPowell d'ordre " + ordre + " : " + couleur + " couleur.");
-
-        }
-
-        return couleur-1;
+        return couleur;
     }
 
-    public int colorationWelshPowell(boolean croissant) {
-        return colorationWelshPowell(croissant, false);
-    }
     /**
      * Execute l'algorithme de WellshPowell nbEchantille fois et affiche une petite statistique dessus.
      * @param nbEchantillon
@@ -273,7 +254,7 @@ public class Graphe
         int nbCouleur;
 
         for ( int i = 0; i < nbEchantillon; i++) {
-            nbCouleur = colorationWelshPowell(false, true);
+            nbCouleur = colorationWelshPowell("aleatoire");
             if ( min_NbCoul == 0) {
                 min_NbCoul = nbCouleur;
                 max_NbCoul = nbCouleur;
@@ -295,11 +276,27 @@ public class Graphe
         System.out.println("\tNombre de couleurs maximal atteint = " + max_NbCoul);
     }
 
-    public int colorationGreedy(boolean croissant, boolean aleatoire) {
+    /**
+     *
+     * Renvoie le nombre de couleur d'une coloration du graph Greedy, avec un tri de sommet selon le mode donnée :
+     * "croissant", "decroissant", "aleatoire"
+     * @param mode
+     * @return
+     */
+    public int colorationGreedy(String mode) {
+
+        //mode croissant par défaut.
+        boolean croissant = true;
+        boolean aleatoire = false;
+
+        if ( mode.equals("aleatoire") )
+            aleatoire = true;
+        else if ( mode.equals("decroissant") )
+            croissant = false;
 
         int couleurMax = -1;
 
-        ArrayList<Integer> sommets = trierSommetsParDegres(croissant, aleatoire, !aleatoire);
+        ArrayList<Integer> sommets = trierSommetsParDegres(mode);
 
         HashMap< Integer, ArrayList<Integer> > listeColoriees = new HashMap<>();
         for (int i = 0; i < nbSommets; i++) {
@@ -322,22 +319,13 @@ public class Graphe
     //Affichage d'informations
         if ( !aleatoire ) {
 
-            String ordre;
-            if ( croissant )
-                ordre = "croissant";
-            else
-                ordre = "decroissant";
-
-            System.out.println("Coloration minimale du graphe " + "\'" + nom + "\'" + " par coloration Greedy d'ordre " + ordre + " : " + couleurMax + " couleur.");
+            System.out.println("Coloration minimale du graphe " + "\'" + nom + "\'" + " par coloration Greedy d'ordre " + mode + " : " + couleurMax + " couleur.");
 
         }
         return couleurMax;
 
     }
 
-    public int colorationGreedy(boolean croissant) {
-        return colorationGreedy(croissant, false);
-    }
 
     public void colorationGreedyAleatoire(int nbEchantillon) {
         float moyenne_NbCoul = 0;
@@ -346,7 +334,7 @@ public class Graphe
         int nbCouleur;
 
         for ( int i = 0; i < nbEchantillon; i++) {
-            nbCouleur = colorationGreedy(false, true);
+            nbCouleur = colorationGreedy("aleatoire");
             if ( min_NbCoul == 0) {
                 min_NbCoul = nbCouleur;
                 max_NbCoul = nbCouleur;
@@ -368,11 +356,121 @@ public class Graphe
         System.out.println("\tNombre de couleurs maximal atteint = " + max_NbCoul);
     }
 
-    private ArrayList<Integer> trierSommetsParDegres(boolean croissant, boolean aleatoire, boolean affichageDebug) {
+    /**
+     * Renvoie le nombre de couleur d'une coloration du graph par DSAT
+     * @return
+     */
+    public int colorationDSAT() {
 
-        int[] degres = new int[nbSommets];
+        /*
+        1. Ordonner les sommets par ordre décroissant de degrés.
+        2. Colorer un sommet de degré maximum avec la couleur 1.
+        3. Choisir un sommet avec DSAT maximum. En cas d'égalité, choisir un sommet de degré maximal.
+        4. Colorer ce sommet avec la plus petite couleur possible
+        5. Si tous les sommets sont colorés alors stop. Sinon aller en 3.
+         */
+
+        int dsat;
+        int dsatMax;
+        int sommetDsatMax;
+        int couleurMin;
+        int couleurMax = 1;
+
+        ArrayList<Integer> sommetsMemeDsatMax = new ArrayList<>();
+
+        int[] couleurs = new int[nbSommets];
         for (int i = 0; i < nbSommets; i++)
-            degres[i] = listeAdjacence.get(i).size();
+            couleurs[i] = 0;
+
+        //1. Ordonner les sommets par ordre décroissant de degrés.
+        ArrayList<Integer> sommets = trierSommetsParDegres("decroissant");
+
+        ArrayList<Integer> sommetsColories = new ArrayList<>();
+
+        //2. Colorer un sommet de degré maximum avec la couleur 1.
+        couleurs[sommets.get(0)] = 1;
+
+        sommetsColories.add(sommets.get(0));
+        sommets.remove(0);
+
+        //3. Choisir un sommet avec DSAT maximum. En cas d'égalité, choisir un sommet de degré maximal.
+        while ( !sommets.isEmpty() ) {
+
+
+            //On calcule le DSAT de chaque sommet restants
+            dsatMax = 0;
+            sommetsMemeDsatMax = new ArrayList<>();
+            for ( int som : sommets ) {
+
+                //Calcul DSAT.
+                ArrayList<Integer> couleursDifferente = new ArrayList<>();
+                for ( int sommet : listeAdjacence.get(som) ) {
+                    if ( !couleursDifferente.contains(couleurs[sommet]) && couleurs[sommet] != 0 )
+                        couleursDifferente.add(couleurs[sommet]);
+                }
+                dsat = couleursDifferente.size();
+
+                //Si c'est un nouveau maximum, on l'enregistre
+                if ( dsat > dsatMax ) {
+                    dsatMax = dsat;
+                    sommetsMemeDsatMax = new ArrayList<>();
+                    sommetsMemeDsatMax.add(som);
+                }
+                //On garde une liste de tout les sommets de dsatMax de meme degré.
+                else if ( dsat == dsatMax )
+                    sommetsMemeDsatMax.add(som);
+            }
+
+            //On prend ce le sommets de DsatMax de plus haut degré.
+            sommetDsatMax = sommetsMemeDsatMax.get(0);
+            for ( int som : sommetsMemeDsatMax ) {
+                if ( degre(sommetDsatMax) < degre(som) )
+                    sommetDsatMax = som;
+            }
+
+            //4. Colorier ce sommet avec la plus petite couleur possible
+            couleurMin = 1;
+                //On liste les couleurs des voisins
+            ArrayList<Integer> couleursDifferente = new ArrayList<>();
+            for ( int voisin : listeAdjacence.get(sommetDsatMax) ) {
+                if ( !couleursDifferente.contains(couleurs[voisin]) && couleurs[voisin] != 0 )
+                    couleursDifferente.add(couleurs[voisin]);
+            }
+            //On récupère la valeur minimum non présente dans la liste
+            couleurMin = 1;
+            while ( couleursDifferente.contains(couleurMin) )
+                couleurMin++;
+
+            couleurs[sommetDsatMax] = couleurMin;
+            if ( couleurMin > couleurMax )
+                couleurMax = couleurMin;
+
+            sommets.remove(new Integer(sommetDsatMax));
+        }
+
+        //Affichage
+        System.out.println("Coloration minimale du graphe " + "\'" + nom + "\'" + " par coloration DSAT : " + couleurMax + " couleur.");
+
+        return couleurMax;
+    }
+
+
+    /**
+     * Trie les sommets selon le mode donné : "croissant", "decroissant", "aleatoire".
+     * Si affichageDebug est sur vrai, affiche les résultats.
+     * @param mode
+     * @return
+     */
+    private ArrayList<Integer> trierSommetsParDegres(String mode) {
+
+        //mode croissant par défaut.
+        boolean croissant = true;
+        boolean aleatoire = false;
+
+        if ( mode.equals("aleatoire") )
+            aleatoire = true;
+        else if ( mode.equals("decroissant") )
+            croissant = false;
 
         ArrayList<Integer> sommets = new ArrayList<>();
         sommets.add(0);
@@ -383,11 +481,11 @@ public class Graphe
             if ( !aleatoire ) {
                 //Si par ordre croissant
                 if ( croissant ) {
-                    while ( degres[sommets.get(j)] < degres[i] && j < sommets.size()-1 )
+                    while ( degre(sommets.get(j)) < degre(i) && j < sommets.size()-1 )
                         j++;
                 } //si décroissant
                 else {
-                    while ( degres[sommets.get(j)] > degres[i] && j < sommets.size()-1 )
+                    while ( degre(sommets.get(j)) > degre(i) && j < sommets.size()-1 )
                         j++;
                 }
             }
@@ -401,35 +499,35 @@ public class Graphe
             Collections.shuffle(sommets);
 
         if (affichageDebug) {
+            boolean petitDegre, petitNombre;
             String bar;
             System.out.print("sommets : ");
             for (int i = 0; i < sommets.size(); i++) {
                 bar = " | ";
-                if ( degres[sommets.get(i)] >= 10 && i < 10 )
-                    bar += "  " ;
-                if ( i >= 100 )
-                    bar += " " ;
-                if ( i >= 1000 )
-                    bar += " " ;
+                petitDegre = degre(sommets.get(i)) < 10;
+                petitNombre = sommets.get(i) < 10;
+                if ( !petitDegre && petitNombre )
+                    bar = " " + bar ;
                 System.out.print(sommets.get(i) + bar);
             }
             System.out.println();
             System.out.print("degres  : ");
-            bar = " | ";
             for (int i = 0; i < sommets.size(); i++) {
                 bar = " | ";
-                if ( degres[sommets.get(i)] >= 10 && i < 10 )
-                    bar += "  " ;
-                if ( i >= 100 )
-                    bar += " " ;
-                if ( i >= 1000 )
-                    bar += " " ;
-                System.out.print(degres[sommets.get(i)] + bar);
+                petitDegre = degre(sommets.get(i)) < 10;
+                petitNombre = sommets.get(i) < 10;
+                if ( petitDegre && !petitNombre )
+                    bar = " " + bar ;
+                System.out.print(degre(sommets.get(i)) + bar);
             }
             System.out.println();
         }
 
         return sommets;
+    }
+
+    private int degre(int sommet) {
+        return listeAdjacence.get(sommet).size();
     }
 
     /**
@@ -465,6 +563,14 @@ public class Graphe
 
     //Getters/Setters
 
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setAffichageDebug(boolean affichageDebug) {
+        this.affichageDebug = affichageDebug;
+    }
 
     public HashMap<Integer, ArrayList<Integer>> getListeAdjacence() {
         return listeAdjacence;

@@ -8,29 +8,28 @@ public class Main {
     public static void main(String argc[]) {
 
 
-        float moyenneColorationAleatoire;
-        int nbColorationAleatoire;
-        int miniColorationAleatoire;
-        int maxColorationAleatoire;
-        int nbColorationAleatoireMax = 100;
-        int nbCouleur;
-
         String filename = "queen5_5.txt";
 
         Graphe graph = new Graphe(filename);
 
         //graph.print();
+        System.out.println("Graphe \'" + graph.getNom() + "\' :");
 
-        graph.colorationWelshPowell(true);
-        graph.colorationWelshPowell(false);
+        graph.colorationWelshPowell("croissant");
+        graph.colorationWelshPowell("decroissant");
 
-        graph.colorationWelshPowellAleatoire(200);
+        graph.colorationWelshPowellAleatoire(100);
 
         System.out.println();
 
-        graph.colorationGreedy(true);
-        graph.colorationGreedy(false);
-        graph.colorationGreedyAleatoire(200);
+        graph.colorationGreedy("croissant");
+        graph.colorationGreedy("decroissant");
+        graph.colorationGreedyAleatoire(100);
+
+
+        System.out.println();
+
+        graph.colorationDSAT();
 
 
     }
