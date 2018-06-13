@@ -1,18 +1,18 @@
 import Graphe.Graphe;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 public class Main {
 
     public static void main(String argc[]) {
 
-        int nbEchantillon = 200;
+        int nbEchantillon = 300;
 
         System.out.println("\nCalculs de coloration de Graphes !\n");
         ArrayList<String> listFilenames = new ArrayList<>();
 
         //On ajoute tout les fichiers qu'on veut lire
+
         listFilenames.add("queen5_5.txt");
         listFilenames.add("queen7_7.txt");
         listFilenames.add("queen9_9.txt");
@@ -31,14 +31,14 @@ public class Main {
             //graph.print();
 
             System.out.println();
-            graph.colorationWelshPowell("croissant");
-            graph.colorationWelshPowell("decroissant");
-            graph.colorationWelshPowellAleatoire(nbEchantillon);
-
-            System.out.println();
             graph.colorationGreedy("croissant");
             graph.colorationGreedy("decroissant");
             graph.colorationGreedyAleatoire(nbEchantillon);
+
+            System.out.println();
+            graph.colorationWelshPowell("croissant");
+            graph.colorationWelshPowell("decroissant");
+            graph.colorationWelshPowellAleatoire(nbEchantillon);
 
             System.out.println();
             graph.colorationDSAT();

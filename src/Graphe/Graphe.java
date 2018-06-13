@@ -23,6 +23,7 @@ public class Graphe
         value : Listes des sommets voisins.
      */
 
+    /**
     public Graphe(String nom, int nbSommets, int nbArcs, HashMap<Integer, ArrayList<Integer>> listeAdjacence) {
         this.nom = nom;
         this.nbSommets = nbSommets;
@@ -30,6 +31,10 @@ public class Graphe
         this.listeAdjacence = listeAdjacence;
     }
 
+    /**
+     * Construit un Graphe à partir du fichier donné en argument
+     * @param filename
+     */
     public Graphe(String filename) {
         if ( !readGraphe(filename) )
             System.out.println("Erreur lecture fichier!");
@@ -59,6 +64,9 @@ public class Graphe
         System.out.println();
     }
 
+    /**
+     * Trie les listes d'adjacence du graphe par numéro de sommets croissants
+     */
     public void sort() {
 
         for ( ArrayList<Integer> listeAdj : listeAdjacence.values() ) {
@@ -66,7 +74,11 @@ public class Graphe
         }
     }
 
-
+    /**
+     * Construit le graphe à partir d'une lecture du fichier donné en argument
+     * @param fname
+     * @return
+     */
     public boolean readGraphe(String fname) {
         Scanner sc;
         Scanner scLine;
@@ -155,6 +167,9 @@ public class Graphe
         return true;
     }
 
+    /**
+     * Renvoie vrai si le graphe est vide, faux sinon.
+     */
     public void isNull() {
 
         for (int i = 0; i < nbSommets; i++) {
@@ -435,7 +450,7 @@ public class Graphe
             startTime = System.nanoTime();
         }
 
-        ArrayList<Integer> sommetsMemeDsatMax = new ArrayList<>();
+        ArrayList<Integer> sommetsMemeDsatMax;
 
         int[] couleurs = new int[nbSommets];
         for (int i = 0; i < nbSommets; i++)
@@ -444,12 +459,12 @@ public class Graphe
         //1. Ordonner les sommets par ordre décroissant de degrés.
         ArrayList<Integer> sommets = trierSommetsParDegres("decroissant");
 
-        ArrayList<Integer> sommetsColories = new ArrayList<>();
+        //ArrayList<Integer> sommetsColories = new ArrayList<>();
 
         //2. Colorer un sommet de degré maximum avec la couleur 1.
         couleurs[sommets.get(0)] = 1;
 
-        sommetsColories.add(sommets.get(0));
+        //sommetsColories.add(sommets.get(0));
         sommets.remove(0);
 
         //3. Choisir un sommet avec DSAT maximum. En cas d'égalité, choisir un sommet de degré maximal.
@@ -501,9 +516,12 @@ public class Graphe
                 couleurMin++;
 
             couleurs[sommetDsatMax] = couleurMin;
+
+            //On retient la plus haute valeur atteinte.
             if ( couleurMin > couleurMax )
                 couleurMax = couleurMin;
 
+            //On retire le sommet colorié de la liste des sommets
             sommets.remove(new Integer(sommetDsatMax));
         }
 
@@ -545,8 +563,11 @@ public class Graphe
 
         for (int i = 1; i < nbSommets; i++) {
 
-            int j = 0;
-            if ( !aleatoire ) {
+            if ( aleatoire ) {
+                sommets.add(i);
+            }
+            else {
+                int j = 0;
                 //Si par ordre croissant
                 if ( croissant ) {
                     while ( degre(sommets.get(j)) < degre(i) && j < sommets.size()-1 )
@@ -556,12 +577,13 @@ public class Graphe
                     while ( degre(sommets.get(j)) > degre(i) && j < sommets.size()-1 )
                         j++;
                 }
+                //Si on est arrivé au bout on ajoute à la fin
+                if ( j == sommets.size()-1 )
+                    sommets.add(i);
+                else
+                    sommets.add(j, i);
             }
-            //Si on est arrivé au bout on ajoute à la fin
-            if ( j == sommets.size()-1 )
-                sommets.add(i);
-            else
-                sommets.add(j, i);
+
         }
         //Si on trie par ordre aléatoire on mélange juste toute les valeurs.
         if ( aleatoire )
